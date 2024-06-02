@@ -1,0 +1,45 @@
+name: Cross-Platform Job
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            container: ubuntu:20.04
+          - os: macos-latest
+          - os: windows-latest
+
+    container: ${{ matrix.container }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      # Common step across all OS
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Conditional steps based on the OS
+      - name: Build on Ubuntu
+        if: runner.os == 'Linux'
+        run: echo "Running build commands for Ubuntu"
+
+      - name: Build on macOS
+        if: runner.os == 'macOS'
+        run: echo "Running build commands for macOS"
+
+      - name: Build on Windows
+        if: runner.os == 'Windows'
+        run: echo "Running build commands for Windows"
+
+      # Final step, common for all OS
+      - name: Run tests
+        run: pytest
